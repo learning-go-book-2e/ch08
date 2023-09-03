@@ -1,12 +1,12 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
-	"strings"
 )
 
 func main() {
-	t1 := NewTree(BuiltInOrderable[int])
+	t1 := NewTree(cmp.Compare[int])
 	t1.Add(10)
 	t1.Add(30)
 	t1.Add(15)
@@ -26,11 +26,6 @@ func main() {
 	t3.Add(Person{"Bob", 50})
 	fmt.Println(t3.Contains(Person{"Bob", 30}))
 	fmt.Println(t3.Contains(Person{"Fred", 25}))
-}
-
-type BuiltInOrdered interface {
-	~string | ~int | ~int8 | ~int16 | ~int32 | ~int64 | ~float32 | ~float64 |
-		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
 }
 
 type OrderableFunc[T any] func(t1, t2 T) int
@@ -85,33 +80,23 @@ func (n *Node[T]) Contains(f OrderableFunc[T], v T) bool {
 	return true
 }
 
-func BuiltInOrderable[T BuiltInOrdered](t1, t2 T) int {
-	if t1 < t2 {
-		return -1
-	}
-	if t1 > t2 {
-		return 1
-	}
-	return 0
-}
-
 type Person struct {
 	Name string
 	Age  int
 }
 
 func OrderPeople(p1, p2 Person) int {
-	out := strings.Compare(p1.Name, p2.Name)
+	out := cmp.Compare(p1.Name, p2.Name)
 	if out == 0 {
-		out = p1.Age - p2.Age
+		out = cmp.Compare(p1.Age, p2.Age)
 	}
 	return out
 }
 
 func (p Person) Order(other Person) int {
-	out := strings.Compare(p.Name, other.Name)
+	out := cmp.Compare(p.Name, other.Name)
 	if out == 0 {
-		out = p.Age - other.Age
+		out = cmp.Compare(p.Age, other.Age)
 	}
 	return out
 }
